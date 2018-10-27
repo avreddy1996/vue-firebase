@@ -5,11 +5,11 @@
   <div v-else>
     <div class="page-container">
       <md-app md-waterfall md-mode="fixed" class="height-100">
-        <md-app-toolbar class="md-primary md-elevation-2">
+        <md-app-toolbar class="md-primary">
           <span class="md-title"></span>
         </md-app-toolbar>
         <md-app-drawer md-permanent="full" class="md-layout-item md-size-20 app-drawer">
-          <md-app-toolbar class="md-primary" md-elevation="2">
+          <md-app-toolbar class="md-primary">
             My Dairy
           </md-app-toolbar>
           <div style="position: relative;">
@@ -21,8 +21,8 @@
               <h5 class="avatar-text">{{user.name}}</h5>
             </div>
           </div>
-          <div style="flex: 1;overflow-x: auto;" class="md-scrollbar">
-            <v-calendar :attributes='attrs' @dayclick='dayClicked'></v-calendar>
+          <div style="flex: 1;overflow-x: auto;margin: 4px 0;" class="md-scrollbar">
+            <v-calendar :attributes='attrs' @dayclick='dayClicked' :theme-styles="themeStyles"></v-calendar>
           </div>
           <md-divider></md-divider>
           <md-list>
@@ -75,6 +75,17 @@
         textarea : '',
         selectedDate : new Date(),
         loading: true,
+        themeStyles : {
+          wrapper: {
+            border: '0',
+            borderRadius: '5px',
+            boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.14), 0 6px 20px 0 rgba(0, 0, 0, 0.13)'
+          },
+          dayCellNotInMonth: {
+            opacity: 0,
+            pointerEvents: 'none'
+          }
+        }
       }
     },
     computed : {
@@ -85,12 +96,26 @@
             key: 'today',
             highlight: {
               backgroundColor: '#ff8080',
+              boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.14), 0 6px 20px 0 rgba(0, 0, 0, 0.13)'
               // Other properties are available too, like `height` & `borderRadius`
             },
+            contentStyle: {
+              color: 'white',
+              boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.14), 0 6px 20px 0 rgba(0, 0, 0, 0.13)'
+              // White text
+            },
             dates: new Date(),
+          },
+          {
+            key:'selected',
+            highlight: {
+              borderColor: '#ff8080',
+              borderWidth : '2px',
+              borderRadius : '50%'
+            },
+            dates : new Date(this.selectedDate)
           }
           );
-        console.log(dairy);
         return dairy;
       }
     },
@@ -109,15 +134,15 @@
       },
       dayClicked : function(day){
         this.selectedDate = day.date;
-        console.log(this.selectedDate)
       },
       updateDairy : function () {
         let userId = firebase.auth().currentUser.uid;
         firebase.database().ref('users/'+userId+'/dairy/'+this.getDateString(this.selectedDate)).set({
           content : this.textarea
         }).then((data)=>{
+          this.user.dairy[this.getDateString(this.selectedDate)]=this.textarea.toString();
           this.textarea = '';
-          this.user.dairy[this.getDateString(this.selectedDate)]=this.textarea;
+          console.log(this.user.dairy[this.getDateString(this.selectedDate)]);
         })
       },
       getDateString: function(date){
@@ -128,14 +153,13 @@
         let arr = [];
         if(this.user.dairy){
           Object.keys(this.user.dairy).forEach((key)=>{
-            console.log('date',key,new Date(key));
             arr.push({
               dates : new Date(key),
               dot : {
                 backgroundColor : '#398fac',
               },
               popover : {
-                label : this.user.dairy[key].content.slice(0,10)
+                label : this.user.dairy[key].content?this.user.dairy[key].content.slice(0,10):''
               }
             })
           })
