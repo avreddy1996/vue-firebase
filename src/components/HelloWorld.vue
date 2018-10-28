@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loading" style="margin-top: 50px">
+  <div v-if="loading" style="text-align: center;margin-top: 50px">
     <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
   </div>
   <div v-else>
@@ -33,14 +33,20 @@
           </md-list>
         </md-app-drawer>
         <md-app-content>
-          <div class="md-layout">
-            <div class="md-layout-item md-size-50">
-              Enter dairy of {{selectedDate.toLocaleDateString("en-US")}}
+          <div class="paper">
+            <div class="dairy-header">
+              <div class="md-layout md-alignment-bottom-space-between">
+                <h6>{{getMonthText(this.selectedDate)}}</h6>
+                <h6 style="font-weight: bold;">{{this.selectedDate.getFullYear()}}</h6>
+              </div>
+              <md-divider></md-divider>
+              <div>
+                <h5><span class="">{{this.selectedDate.getDate()}}</span> {{getDateText(this.selectedDate)}}</h5>
+              </div>
             </div>
-            <md-field class="md-layout-item md-size-80">
-              <label>Textarea</label>
-              <md-textarea v-model="textarea"></md-textarea>
-            </md-field>
+            <div class="dairy-content">
+              <textarea v-model="textarea" title="dairy content" style="width: 100%;" rows="10" placeholder="There is no content for this date, Click here to add some :)"></textarea>
+            </div>
             <md-button class="md-primary md-raised" @click="updateDairy">Save</md-button>
           </div>
         </md-app-content>
@@ -72,7 +78,7 @@
         msg: 'Welcome to Your Vue.js App ',
         user : {},
         name : '',
-        textarea : '',
+
         selectedDate : new Date(),
         loading: true,
         themeStyles : {
@@ -117,6 +123,11 @@
           }
           );
         return dairy;
+      },
+      textarea(){
+        let val = (this.user.diary && this.user.diary[this.getDateString(this.selectedDate)])?user.diary[this.getDateString(this.selectedDate)].content:'';
+        console.log(val);
+        return val;
       }
     },
     methods : {
@@ -141,7 +152,6 @@
           content : this.textarea
         }).then((data)=>{
           this.user.dairy[this.getDateString(this.selectedDate)]=this.textarea.toString();
-          this.textarea = '';
           console.log(this.user.dairy[this.getDateString(this.selectedDate)]);
         })
       },
@@ -165,6 +175,14 @@
           })
         }
         return arr;
+      },
+      getMonthText: function(date){
+        let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[date.getMonth()];
+      },
+      getDateText : function (date) {
+        let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return days[date.getDay()];
       }
     },
     created(){
@@ -226,5 +244,36 @@
   }
   .c-day-content{
     cursor: pointer;
+  }
+  .paper{
+    padding: 1rem;
+    width: 100%;
+    -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  }
+  .dairy-header h6{
+    margin: 10px 0;
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+  .dairy-header h5{
+    margin: 15px 0;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #828282;
+  }
+  .dairy-header h5 span{
+    font-size: 2.2rem;
+    color: #000;
+  }
+  .dairy-content textarea{
+    min-height: 200px;
+    line-height: 30px;
+    text-align: justify;
+    background: linear-gradient(transparent, transparent 29px, #000 29px);
+    -webkit-background-size: 30px 30px;
+    background-size: 30px 30px;
+    border: none;
   }
 </style>
