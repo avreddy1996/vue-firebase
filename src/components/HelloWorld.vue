@@ -78,7 +78,8 @@
         msg: 'Welcome to Your Vue.js App ',
         user : {},
         name : '',
-
+        textarea : '',
+        isEmailVerified : false,
         selectedDate : new Date(),
         loading: true,
         themeStyles : {
@@ -123,11 +124,6 @@
           }
           );
         return dairy;
-      },
-      textarea(){
-        let val = (this.user.diary && this.user.diary[this.getDateString(this.selectedDate)])?user.diary[this.getDateString(this.selectedDate)].content:'';
-        console.log(val);
-        return val;
       }
     },
     methods : {
@@ -145,14 +141,23 @@
       },
       dayClicked : function(day){
         this.selectedDate = day.date;
+        this.textarea = (this.user.dairy && this.user.dairy[this.getDateString(this.selectedDate)]) ? this.user.dairy[this.getDateString(this.selectedDate)].content:'';
       },
       updateDairy : function () {
         let userId = firebase.auth().currentUser.uid;
+        const self = this;
         firebase.database().ref('users/'+userId+'/dairy/'+this.getDateString(this.selectedDate)).set({
           content : this.textarea
         }).then((data)=>{
-          this.user.dairy[this.getDateString(this.selectedDate)]=this.textarea.toString();
-          console.log(this.user.dairy[this.getDateString(this.selectedDate)]);
+          if(self.user.dairy){
+            self.user.dairy[self.getDateString(self.selectedDate)] = self.textarea.toString();
+          }else{
+            self.user.dairy = {
+              [self.getDateString(self.selectedDate)]:{
+                'content' : self.textarea.toString()
+            }
+            }
+          }
         })
       },
       getDateString: function(date){
@@ -190,8 +195,10 @@
       let user;
       let uid = firebase.auth().currentUser.uid;
       firebase.database().ref('users/'+uid).once('value').then(function (snapshot) {
+        self.isEmailVerified = firebase.auth().currentUser.emailVerified;
         var user = snapshot.val() && snapshot.val() || firebase.auth().currentUser.email;
         self.user = user;
+        self.textarea = (user.dairy && user.dairy[self.getDateString(self.selectedDate)] && user.dairy[self.getDateString(self.selectedDate)].content)?user.dairy[self.getDateString(self.selectedDate)].content:'';
         self.loading = false;
       })
     },

@@ -1,5 +1,5 @@
 <template>
-  <div class="login md-layout md-gutter md-alignment-center">
+  <div class="login md-layout md-gutter md-alignment-center" style="text-align: center;">
     <div class="md-layout-item md-size-100">
       <img src="../assets/logo.png" class="md-size-100">
     </div>

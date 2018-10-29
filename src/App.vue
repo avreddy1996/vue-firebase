@@ -15,6 +15,6 @@ export default {
   font-family: 'Roboto', sans-serif;;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #fff;
+  color: #000;
 }
 </style>
